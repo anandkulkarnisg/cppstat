@@ -1,0 +1,9 @@
+
+requirements:-
+~~~~~~~~~~~~~~~~~~~
+
+- support winsorization with below features.
+- clean and debuggable code.
+- winsor using both strict and relaxed modes using input flags [ default mode is relaxed ].
+- winsor params seperately fed for upper and lower sides [ if only one fed then assume same both sides ] - defaulted to zero.
+- winsor in place or using a copy ? in C++ we do it always in place. i.e results are visible in the array passed as parameter.
