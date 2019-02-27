@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
       cout << "warning : The first argument" << argv[1] << " could not be converted to float.Defaulting to zero." << endl;
     }
   }
-  winsorize(arr, winsorSize);
+  winsorize(arr, winsorSize, winsorSize, WinsorStyle::strict, WinsorStyle::strict);
   printArrayToConsole("after  : ", arr);
   return(0);
 }

@@ -8,9 +8,6 @@
 
 using namespace std;
 
-enum class SortOrder { asc, desc };
-enum class WinsorStyle { strict, relaxed };
-
 void printArrayToConsole(const char* phase, const vector<int>& arr)
 {
   cout << phase;
@@ -56,7 +53,7 @@ pair<int, int> doPartialSelectionSort(const vector<int>& orig, const float& lowW
   { 
     if(sortOrder == SortOrder::asc) 
     {
-      iterations=round(lowWinsorSize)+1;
+      iterations=round(lowWinsorSize*size)+1;
       if(lowWinsorStyle==WinsorStyle::relaxed)
         relaxedPadUp=1;
       else
@@ -64,7 +61,7 @@ pair<int, int> doPartialSelectionSort(const vector<int>& orig, const float& lowW
     }
     if(sortOrder == SortOrder::desc)
     {
-      iterations=round(highWinsorSize)+1;
+      iterations=round(highWinsorSize*size)+1;
       if(highWinsorStyle==WinsorStyle::relaxed)
         relaxedPadUp=1;
       else
@@ -89,25 +86,26 @@ pair<int, int> doPartialSelectionSort(const vector<int>& orig, const float& lowW
       if(lowWinsorStyle == WinsorStyle::relaxed && percentileVal>lowWinsorSize)
         numIterations-=1;
       if(lowWinsorStyle == WinsorStyle::strict && percentileVal<lowWinsorSize)
-    	  numIterations+=1;
+        numIterations+=1;
     }
-    
+
     if(sortOrder == SortOrder::desc)
     {
       float percentileVal=static_cast<float>((size-1)-(numIterations-1))/static_cast<float>(size-1);
       if(highWinsorStyle == WinsorStyle::relaxed && percentileVal<(1-highWinsorSize))
         numIterations-=1;
       if(highWinsorStyle == WinsorStyle::strict && percentileVal>(1-highWinsorSize))
-    	numIterations+=1;
+        numIterations+=1;
     }
+
     results.emplace_back(arr[numIterations-1]);
   }
   return(make_pair(results[0], results[1]));
 }
 
-void winsorize(vector<int>& arr, const float& winsorSize)
+void winsorizeInternal(vector<int>& arr, const float& lowWinsorSize, const float& highWinsorSize, const WinsorStyle& lowWinsorStyle, const WinsorStyle& highWinsorStyle)
 {
-  pair<int, int> resultPair=doPartialSelectionSort(arr, winsorSize, winsorSize, WinsorStyle::strict, WinsorStyle::strict);
+  pair<int, int> resultPair=doPartialSelectionSort(arr, lowWinsorSize, highWinsorSize, lowWinsorStyle, highWinsorStyle);
 
   int lowerBound=resultPair.first;
   int upperBound=resultPair.second;
@@ -125,22 +123,17 @@ void winsorize(vector<int>& arr, const float& winsorSize)
   }
 }
 
-int main(int argc, char* argv[])
+void winsorize(vector<int>& arr, const float& winsorSize)
 {
-  vector<int> arr= { 92, 19, 101, 58, 1053, 91, 26, 78, 10, 13, -40, 101, 86, 85, 15, 89, 89, 28, -5, 41};
-  printArrayToConsole("before : ", arr);
-  float winsorSize=0;
-  if(argc>1)
-  {
-    try
-    {
-      winsorSize=stof(argv[1]);
-    } catch(exception& e)
-    {
-      cout << "warning : The first argument" << argv[1] << " could not be converted to float.Defaulting to zero." << endl;
-    }
-  }
-  winsorize(arr, winsorSize);
-  printArrayToConsole("after  : ", arr);
-  return(0);
+  winsorizeInternal(arr, winsorSize, winsorSize);
+}
+
+void winsorize(vector<int>& arr, const float& lowWinsorSize, const float& highWinsorSize)
+{
+  winsorizeInternal(arr, lowWinsorSize, highWinsorSize);
+}
+
+void winsorize(vector<int>& arr, const float& lowWinsorSize, const float& highWinsorSize, const WinsorStyle& lowWinsorStyle, const WinsorStyle& highWinsorStyle)
+{
+  winsorizeInternal(arr, lowWinsorSize, highWinsorSize, lowWinsorStyle, highWinsorStyle);
 }
