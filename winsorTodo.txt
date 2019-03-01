@@ -7,3 +7,7 @@ requirements:-
 - winsor using both strict and relaxed modes using input flags [ default mode is relaxed ].
 - winsor params seperately fed for upper and lower sides [ if only one fed then assume same both sides ] - defaulted to zero.
 - winsor in place or using a copy ? in C++ we do it always in place. i.e results are visible in the array passed as parameter.
+- provide a copy in result if requested similar to python approach.
+- implement as a static library i.e no object/class involved.
+- provide cmake build in both debug and release modes.
+- provide a UT and regression framework.

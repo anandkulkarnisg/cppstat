@@ -86,7 +86,11 @@ pair<int, int> doPartialSelectionSort(const vector<int>& orig, const float& lowW
       if(lowWinsorStyle == WinsorStyle::relaxed && percentileVal>lowWinsorSize)
         numIterations-=1;
       if(lowWinsorStyle == WinsorStyle::strict && percentileVal<lowWinsorSize)
-        numIterations+=1;
+      {
+        float neighbourPercentile=static_cast<float>(numIterations)/static_cast<float>(size-1);
+        if(abs(percentileVal-neighbourPercentile)<abs(lowWinsorSize-percentileVal))
+          numIterations+=1;
+      }
     }
 
     if(sortOrder == SortOrder::desc)
@@ -95,9 +99,12 @@ pair<int, int> doPartialSelectionSort(const vector<int>& orig, const float& lowW
       if(highWinsorStyle == WinsorStyle::relaxed && percentileVal<(1-highWinsorSize))
         numIterations-=1;
       if(highWinsorStyle == WinsorStyle::strict && percentileVal>(1-highWinsorSize))
-        numIterations+=1;
+      {
+        float neighbourPercentile=static_cast<float>(numIterations)/static_cast<float>(size-1);
+        if(abs(percentileVal-neighbourPercentile)<abs((1-highWinsorSize)-percentileVal))
+          numIterations+=1;
+      }
     }
-
     results.emplace_back(arr[numIterations-1]);
   }
   return(make_pair(results[0], results[1]));
