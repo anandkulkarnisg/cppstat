@@ -52,21 +52,11 @@ pair<int, int> doPartialSelectionSort(const vector<int>& orig, const float& lowW
   for(const auto& sortOrder : sortTypes)
   { 
     if(sortOrder == SortOrder::asc) 
-    {
       iterations=round(lowWinsorSize*size)+1;
-      if(lowWinsorStyle==WinsorStyle::relaxed)
-        relaxedPadUp=1;
-      else
-        relaxedPadUp=0;
-    }
+
     if(sortOrder == SortOrder::desc)
-    {
       iterations=round(highWinsorSize*size)+1;
-      if(highWinsorStyle==WinsorStyle::relaxed)
-        relaxedPadUp=1;
-      else
-        relaxedPadUp=0;
-    }
+
     numIterations=iterations+relaxedPadUp;
     for(unsigned int i=0; i<=numIterations; ++i)
     {
@@ -84,7 +74,11 @@ pair<int, int> doPartialSelectionSort(const vector<int>& orig, const float& lowW
     {
       float percentileVal=static_cast<float>(numIterations-1)/static_cast<float>(size-1); 
       if(lowWinsorStyle == WinsorStyle::relaxed && percentileVal>lowWinsorSize)
-        numIterations-=1;
+      {
+        float neighbourPercentile=static_cast<float>(numIterations)/static_cast<float>(size-1);
+        if(abs(percentileVal-neighbourPercentile)<abs(lowWinsorSize-percentileVal))
+          numIterations-=1;
+      }
       if(lowWinsorStyle == WinsorStyle::strict && percentileVal<lowWinsorSize)
       {
         float neighbourPercentile=static_cast<float>(numIterations)/static_cast<float>(size-1);
@@ -97,7 +91,11 @@ pair<int, int> doPartialSelectionSort(const vector<int>& orig, const float& lowW
     {
       float percentileVal=static_cast<float>((size-1)-(numIterations-1))/static_cast<float>(size-1);
       if(highWinsorStyle == WinsorStyle::relaxed && percentileVal<(1-highWinsorSize))
-        numIterations-=1;
+      {
+        float neighbourPercentile=static_cast<float>(numIterations)/static_cast<float>(size-1);
+        if(abs(percentileVal-neighbourPercentile)<abs((1-highWinsorSize)-percentileVal))
+          numIterations-=1;
+      }
       if(highWinsorStyle == WinsorStyle::strict && percentileVal>(1-highWinsorSize))
       {
         float neighbourPercentile=static_cast<float>(numIterations)/static_cast<float>(size-1);
@@ -105,6 +103,7 @@ pair<int, int> doPartialSelectionSort(const vector<int>& orig, const float& lowW
           numIterations+=1;
       }
     }
+    //cout << "sticking in : " << arr[numIterations-1] << " i.e value at index = " << numIterations-1 << endl;
     results.emplace_back(arr[numIterations-1]);
   }
   return(make_pair(results[0], results[1]));
